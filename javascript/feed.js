@@ -1,27 +1,52 @@
 
-function makeWhatsNewLiElement(item) {
-  if (item.link.match(/kudakurage/gi)){
-    item.author = '@kudakurage';
+function makeWhatsNewLiElementForEntry(entry) {
+  if (entry.url) {
+    entry.blogLink = entry.url
+  } else if (entry.origLink) {
+    entry.blogLink = entry.origLink
+  } else if ($.isArray(entry.link)) {
+    entry.blogLink = entry.link[0].href
   } else {
-    item.author = '@tokorom';
+    entry.blogLink = entry.link
   }
 
-  item.description = item.description.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g,''); // strip html tags
-  item.description = truncate(item.description, 70, "…");
+  if (entry.title.content) {
+    entry.title = entry.title.content
+  }
 
-  if (item.enclosure.type.match(/image\//gi)){
-    item.imageUrl = item.enclosure.url;
+  if (entry.blogLink.match(/kudakurage/i)){
+    entry.author = '@kudakurage';
   } else {
-    date = new Date(item.pubDate);
-    item.imageUrl = './images/entry_thumbnail_placeholder_'+ ((date.getTime() / 1000) % 6 + 1) +'.png';
+    entry.author = '@tokorom';
+  }
+
+  entry.description = entry.content.content.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g,''); // strip html tags
+  entry.description = truncate(entry.description, 70, "…");
+
+  if ($.isArray(entry.updated)) {
+    entry.date = entry.updated[0]
+  } else {
+    entry.date = entry.updated
+  }
+
+  if ($.isArray(entry.link) && entry.link.length > 1) {
+    entry.imageUrl = entry.link[1].href;
+  } else {
+    result = entry.content.content.match(/\<img(.*)src=\"?([\-_\.\!\~\*\'\(\)a-z0-9\;\/\?\:@&=\+\$\,\%\#]+(jpg|jpeg|gif|png))/i);
+    if (result && $.isArray(result) && result.length > 2) {
+      entry.imageUrl = result[2];
+    } else {
+      date = new Date(entry.date);
+      entry.imageUrl = './images/entry_thumbnail_placeholder_'+ ((date.getTime() / 1000) % 6 + 1) +'.png';
+    }
   }
 
   var html = '';
-  html += "<a href='"+ item.link + "' class='feed-item-image'><img src='" + item.imageUrl + "' width='300' /></a>";
-  html += "<a href='"+ item.link + "' class='feed-item-title'>" + item.title + "</a>";
-  html += "<span class='feed-item-date'>" + formatDate(new Date(item.pubDate), 'YYYY年MM月DD日') + "</span>";
-  html += "<span class='feed-item-author'>by " + item.author + "</span>";
-  html += "<div class='feed-item-desc'>" + item.description + "</div>"
+  html += "<a href='"+ entry.blogLink + "' class='feed-item-image'><img src='" + entry.imageUrl + "' width='300' /></a>";
+  html += "<a href='"+ entry.blogLink + "' class='feed-item-title'>" + entry.title + "</a>";
+  html += "<span class='feed-item-date'>" + formatDate(new Date(entry.date), 'YYYY年MM月DD日') + "</span>";
+  html += "<span class='feed-item-author'>by " + entry.author + "</span>";
+  html += "<div class='feed-item-desc'>" + entry.description + "</div>"
   return "<li>"+ html +"</li>";
 }
 
@@ -56,15 +81,14 @@ jQuery(function () {
     };
   }
   jQuery.getJSON("http://query.yahooapis.com/v1/public/yql?callback=?", {
-    // q : "select * from rss where url='http://kudakurage.hatenadiary.com/rss' or url='http://feeds.feedburner.com/tokorom?format=xml' | sort(field='pubDate',descending='true');",
-    q : "select * from rss where url='http://kudakurage.hatenadiary.com/rss' | sort(field='pubDate',descending='true');",
+    q : "select * from feed where url='http://kudakurage.hatenadiary.com/feed' or url='http://feeds.feedburner.com/tokorom?format=xml' or url='http://qiita.com/tokorom/feed' | sort(field='updated',descending='true');",
     format : "json"
   }, function (json) {
     var feedElement = jQuery("#feed");
-    if (Array.isArray(json.query.results.item)){
-      maxLength = json.query.results.item.length < 6 ? json.query.results.item.length : 6;
+    if (Array.isArray(json.query.results.entry)){
+      maxLength = json.query.results.entry.length < 6 ? json.query.results.entry.length : 6;
       for (var i = 0; i < maxLength; i++) {
-        feedElement.append(makeWhatsNewLiElement(json.query.results.item[i]));
+        feedElement.append(makeWhatsNewLiElementForEntry(json.query.results.entry[i]));
       }
     }
   });
