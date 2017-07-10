@@ -1,0 +1,130 @@
+@charset "UTF-8";
+
+* {
+  -webkit-overflow-scrolling : touch;
+}
+
+body {
+  background: #fff;
+  color: #262626;
+  font-family: "Helvetica Neue", helvetica, "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Osaka", "MS PGothic", sans-serif;
+  font-size: 12px;
+  line-height: 1.75;
+  text-align: center;
+}
+
+a {
+  color: #1a8ad6;
+  text-decoration: none;
+}
+
+a:hover,a:focus,a:active {
+  text-decoration: underline;
+}
+
+a:hover {
+  opacity: 0.7;
+}
+
+.wrapper {
+  margin: 0 auto;
+  padding: 0 10px;
+  text-align: left;
+  width: 960px;
+}
+
+.header {
+  margin: 270px 0;
+  text-align: center;
+}
+
+.footer-contents-title {
+  border-bottom: 2px solid #D8D8D8;
+  color: #D8D8D8;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 0 20px;
+  padding-bottom: 2px;
+  letter-spacing: 2px;
+}
+
+.footer-contents-team {
+  float: left;
+  width: 630px;
+}
+
+.footer-contents-team-item {
+  float: left;
+  margin-right: 30px;
+  width: 300px;
+}
+
+.footer-contents-team-item:last-child {
+  margin: 0;
+}
+
+.footer-contents-team-item-avatar {
+  border-radius: 50%;
+  float: left;
+  width: 50px;
+}
+
+.footer-contents-team-item-position,
+.footer-contents-team-item-name {
+  margin-left: 60px;
+  letter-spacing: 1px;
+}
+
+.footer-contents-team-item-position {
+  padding-top: 2px;
+}
+
+.footer-contents-team-item-name {
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.footer-contents-team-item-bio {
+  clear: left;
+  padding: 10px 0;
+  letter-spacing: 1px;
+}
+
+.footer-contents-team-item-footer-button {
+  background: #D8D8D8;
+  border-radius: 50%;
+  display: inline-block;
+  height: 24px;
+  line-height: 24px;
+  margin-right: 5px;
+  text-align: center;
+  width: 24px;
+}
+
+.footer-contents-team-item-footer-button img {
+  vertical-align: text-top;
+  width: 14px;
+}
+
+.footer-contents-team-item-footer-link {
+  color: #999999;
+}
+
+.footer-contents-company {
+  float: right;
+  width: 300px;
+}
+
+.footer-contents-company th {
+  height: 30px;
+  width: 80px;
+}
+
+.copyright {
+  clear: both;
+  color: #D8D8D8;
+  font-size: 12px;
+  padding: 60px 0;
+  text-align: center;
+}
