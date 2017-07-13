@@ -180,6 +180,18 @@ a:hover {
   margin-right: 10px;
 }
 
+.ir-headline {
+  color: #D8D8D8;
+}
+
+h1.ir-headline {
+  border-bottom: 2px solid #D8D8D8;
+}
+
+.ir-list {
+  margin-bottom: 60px;
+}
+
 @media (max-width: 980px) {
   .wrapper {
     width: 630px;
