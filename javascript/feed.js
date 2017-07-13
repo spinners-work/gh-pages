@@ -84,7 +84,7 @@ jQuery(function () {
     q : "select * from feed where url='http://kudakurage.hatenadiary.com/feed' or url='http://feeds.feedburner.com/tokorom?format=xml' or url='http://qiita.com/tokorom/feed' | sort(field='updated',descending='true');",
     format : "json"
   }, function (json) {
-    var feedElement = jQuery("#feed");
+    var feedElement = jQuery("#feed").html("");
     if (Array.isArray(json.query.results.entry)){
       maxLength = json.query.results.entry.length < 6 ? json.query.results.entry.length : 6;
       for (var i = 0; i < maxLength; i++) {
