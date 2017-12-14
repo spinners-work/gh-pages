@@ -81,7 +81,7 @@ jQuery(function () {
     };
   }
   jQuery.getJSON("http://query.yahooapis.com/v1/public/yql?callback=?", {
-    q : "select * from feed where url='http://kudakurage.hatenadiary.com/feed' or url='http://feeds.feedburner.com/tokorom?format=xml' or url='http://qiita.com/tokorom/feed' | sort(field='updated',descending='true');",
+    q : "select * from feed where url='http://kudakurage.hatenadiary.com/feed/category/design' or url='http://feeds.feedburner.com/tokorom?format=xml' or url='http://qiita.com/tokorom/feed' | sort(field='updated',descending='true');",
     format : "json"
   }, function (json) {
     var feedElement = jQuery("#feed").html("");
