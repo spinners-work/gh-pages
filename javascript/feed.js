@@ -23,10 +23,10 @@ function makeWhatsNewLiElementForEntry(entry) {
   entry.description = entry.content.content.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g,''); // strip html tags
   entry.description = truncate(entry.description, 70, "…");
 
-  if ($.isArray(entry.updated)) {
-    entry.date = entry.updated[0]
+  if ($.isArray(entry.published)) {
+    entry.date = entry.published[0]
   } else {
-    entry.date = entry.updated
+    entry.date = entry.published
   }
 
   if ($.isArray(entry.link) && entry.link.length > 1) {
@@ -81,7 +81,7 @@ jQuery(function () {
     };
   }
   jQuery.getJSON("http://query.yahooapis.com/v1/public/yql?callback=?", {
-    q : "select * from feed where url='http://kudakurage.hatenadiary.com/feed/category/design' or url='http://feeds.feedburner.com/tokorom?format=xml' or url='http://qiita.com/tokorom/feed' | sort(field='updated',descending='true');",
+    q : "select * from feed where url='http://kudakurage.hatenadiary.com/feed/category/design' or url='http://feeds.feedburner.com/tokorom?format=xml' or url='http://qiita.com/tokorom/feed' | sort(field='published',descending='true');",
     format : "json"
   }, function (json) {
     var feedElement = jQuery("#feed").html("");
