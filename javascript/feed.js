@@ -20,7 +20,18 @@ function makeWhatsNewLiElementForEntry(entry) {
     entry.author = '@tokorom';
   }
 
-  entry.description = entry.content.content.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g,''); // strip html tags
+  var description = '';
+  if (entry.description) {
+    description = entry.description;
+  } else if (entry.content) {
+    if (entry.content.content) {
+      description = entry.content.content;
+    } else {
+      description = entry.content;
+    }
+  }
+
+  entry.description = description.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g,''); // strip html tags
   entry.description = truncate(entry.description, 70, "…");
 
   if ($.isArray(entry.published)) {
@@ -33,16 +44,13 @@ function makeWhatsNewLiElementForEntry(entry) {
     entry.date = entry.date;
   }
 
-  if ($.isArray(entry.link) && entry.link.length > 1) {
+  if (entry.coverImage) {
+    entry.imageUrl = entry.coverImage;
+  } else if ($.isArray(entry.link) && entry.link.length > 1) {
     entry.imageUrl = entry.link[1].href;
   } else {
-    result = entry.content.content.match(/\<img(.*)src=\"?([\-_\.\!\~\*\'\(\)a-z0-9\;\/\?\:@&=\+\$\,\%\#]+(jpg|jpeg|gif|png))/i);
-    if (result && $.isArray(result) && result.length > 2) {
-      entry.imageUrl = result[2];
-    } else {
-      date = new Date(entry.date);
-      entry.imageUrl = './images/entry_thumbnail_placeholder_'+ ((date.getTime() / 1000) % 6 + 1) +'.png';
-    }
+    date = new Date(entry.date);
+    entry.imageUrl = './images/entry_thumbnail_placeholder_'+ ((date.getTime() / 1000) % 6 + 1) +'.png';
   }
 
   var html = '';
@@ -84,14 +92,17 @@ jQuery(function () {
       return Object.prototype.toString.call(arg) === "[object Array]";
     };
   }
+  maxLength = 12
+  feedCount = 2
+  maxLengthByFeed = maxLength / feedCount
   jQuery.getJSON("http://query.yahooapis.com/v1/public/yql?callback=?", {
-    q : "select * from feed where url='http://kudakurage.hatenadiary.com/feed/category/design' or url='http://www.tokoro.me/atom.xml';",
+    q : "select * from feed where url='http://kudakurage.hatenadiary.com/feed/category/design' limit " + maxLengthByFeed,
     format : "json"
-  }, function (json) {
-    var feedElement = jQuery("#feed").html("");
-    if (Array.isArray(json.query.results.entry)){
-      maxLength = 12
-      entries = json.query.results
+  }, function (designJSON) {
+    jQuery.getJSON("http://query.yahooapis.com/v1/public/yql?callback=?", {
+      q : "select * from feed where url='http://www.tokoro.me/atom.xml' limit " + maxLengthByFeed,
+      format : "json"
+    }, function (devJSON) {
       published = function(entry) {
         if (entry.published) {
           return new Date(entry.published);
@@ -101,19 +112,31 @@ jQuery(function () {
           return new Date(entry.date);
         }
       };
+
+      var feedElement = jQuery("#feed").html("");
+      var entries = [];
+
+      designEntries = designJSON.query.results.entry;
+      if (Array.isArray(designEntries)) {
+        entries = entries.concat(designEntries);
+      }
+      devEntries = devJSON.query.results.item;
+      if (Array.isArray(devEntries)) {
+        entries = entries.concat(devEntries);
+      }
+
       entries = entries.sort(function(lhs, rhs) {
         lhsDate = published(lhs);
         rhsDate = published(rhs);
-        if (lhsDate > rhsDate) {
+        if (lhsDate < rhsDate) {
           return 1;
         } else {
           return -1;
         }
       });
-      entries = entries.slice(0, maxLength)
       entries.forEach(function(entry) {
         feedElement.append(makeWhatsNewLiElementForEntry(entry));
       });
-    }
+    });
   });
 });
