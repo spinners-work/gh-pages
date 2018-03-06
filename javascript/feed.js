@@ -86,10 +86,11 @@ jQuery(function () {
   }, function (json) {
     var feedElement = jQuery("#feed").html("");
     if (Array.isArray(json.query.results.entry)){
-      maxLength = json.query.results.entry.length < 6 ? json.query.results.entry.length : 6;
-      for (var i = 0; i < maxLength; i++) {
-        feedElement.append(makeWhatsNewLiElementForEntry(json.query.results.entry[i]));
-      }
+      maxLength = 12
+      entries = json.query.results.entry.slice(0, maxLength)
+      entries.forEach(function(entry) {
+        feedElement.append(makeWhatsNewLiElementForEntry(entry));
+      });
     }
   });
 });
