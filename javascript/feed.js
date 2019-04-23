@@ -1,7 +1,7 @@
 
 function makeWhatsNewLiElementForEntry(entry) {
   if (!entry.imageUrl) {
-    date = new Date(entry.date);
+    date = new Date(entry.publishedAt);
     entry.imageUrl = './images/entry_thumbnail_placeholder_'+ ((date.getTime() / 1000) % 6 + 1) +'.png';
   }
 
