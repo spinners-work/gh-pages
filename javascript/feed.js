@@ -1,73 +1,17 @@
 
 function makeWhatsNewLiElementForEntry(entry) {
-  if (entry.url) {
-    entry.blogLink = entry.url
-  } else if (entry.origLink) {
-    entry.blogLink = entry.origLink
-  } else if ($.isArray(entry.link)) {
-    entry.blogLink = entry.link[0].href
-  } else {
-    entry.blogLink = entry.link
-  }
-
-  if (entry.title.content) {
-    entry.title = entry.title.content
-  }
-
-  if (entry.blogLink.match(/kudakurage/i)){
-    entry.author = '@kudakurage';
-  } else {
-    entry.author = '@tokorom';
-  }
-
-  var description = '';
-  if (entry.description) {
-    description = entry.description;
-  } else if (entry.content) {
-    if (entry.content.content) {
-      description = entry.content.content;
-    } else {
-      description = entry.content;
-    }
-  }
-
-  entry.description = description.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g,''); // strip html tags
-  entry.description = truncate(entry.description, 70, "…");
-
-  if ($.isArray(entry.published)) {
-    entry.date = entry.published[0];
-  } else if (entry.published) {
-    entry.date = entry.published;
-  } else if (entry.pubDate) {
-    entry.date = entry.pubDate;
-  } else {
-    entry.date = entry.date;
-  }
-
-  if (entry.coverImage) {
-    entry.imageUrl = entry.coverImage;
-  } else if ($.isArray(entry.link) && entry.link.length > 1) {
-    entry.imageUrl = entry.link[1].href;
-  } else {
+  if (!entry.imageUrl) {
     date = new Date(entry.date);
     entry.imageUrl = './images/entry_thumbnail_placeholder_'+ ((date.getTime() / 1000) % 6 + 1) +'.png';
   }
 
   var html = '';
-  html += "<a href='"+ entry.blogLink + "' class='feed-item-image'><img src='" + entry.imageUrl + "' width='300' /></a>";
-  html += "<a href='"+ entry.blogLink + "' class='feed-item-title'>" + entry.title + "</a>";
-  html += "<span class='feed-item-date'>" + formatDate(new Date(entry.date), 'YYYY年MM月DD日') + "</span>";
+  html += "<a href='"+ entry.url + "' class='feed-item-image'><img src='" + entry.imageUrl + "' width='300' /></a>";
+  html += "<a href='"+ entry.url + "' class='feed-item-title'>" + entry.title + "</a>";
+  html += "<span class='feed-item-date'>" + formatDate(new Date(entry.publishedAt), 'YYYY年MM月DD日') + "</span>";
   html += "<span class='feed-item-author'>by " + entry.author + "</span>";
   html += "<div class='feed-item-desc'>" + entry.description + "</div>"
   return "<li>"+ html +"</li>";
-}
-
-function truncate(str, size, afterText){
-  if (str.length > size) {
-    str = str.substr(0, size);
-    str += afterText;
-  }
-  return str;
 }
 
 function formatDate(date, format) {
@@ -87,56 +31,20 @@ function formatDate(date, format) {
 };
 
 jQuery(function () {
-  if(!Array.isArray) {
-    Array.isArray = function (arg) {
-      return Object.prototype.toString.call(arg) === "[object Array]";
-    };
-  }
-  maxLength = 12
-  feedCount = 2
-  maxLengthByFeed = maxLength / feedCount
-  jQuery.getJSON("http://query.yahooapis.com/v1/public/yql?callback=?", {
-    q : "select * from feed where url='http://kudakurage.hatenadiary.com/feed/category/design' limit " + maxLengthByFeed,
-    format : "json"
-  }, function (designJSON) {
-    jQuery.getJSON("http://query.yahooapis.com/v1/public/yql?callback=?", {
-      q : "select * from feed where url='http://www.tokoro.me/atom.xml' limit " + maxLengthByFeed,
-      format : "json"
-    }, function (devJSON) {
-      published = function(entry) {
-        if (entry.published) {
-          return new Date(entry.published);
-        } else if (entry.pubDate) {
-          return new Date(entry.pubDate);
-        } else {
-          return new Date(entry.date);
-        }
-      };
+  jQuery.getJSON("https://s3-ap-northeast-1.amazonaws.com/feed.spinners.work/feed.json", function() {
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    var feedElement = jQuery("#feed").html("");
+    console.log("error: " + textStatus);
+    console.log("text: " + jqXHR.responseText);
+  })
+  .done(function(json) {
+    var feedElement = jQuery("#feed").html("");
 
-      var feedElement = jQuery("#feed").html("");
-      var entries = [];
+    var entries = json;
 
-      designEntries = designJSON.query.results.entry;
-      if (Array.isArray(designEntries)) {
-        entries = entries.concat(designEntries);
-      }
-      devEntries = devJSON.query.results.item;
-      if (Array.isArray(devEntries)) {
-        entries = entries.concat(devEntries);
-      }
-
-      entries = entries.sort(function(lhs, rhs) {
-        lhsDate = published(lhs);
-        rhsDate = published(rhs);
-        if (lhsDate < rhsDate) {
-          return 1;
-        } else {
-          return -1;
-        }
-      });
-      entries.forEach(function(entry) {
-        feedElement.append(makeWhatsNewLiElementForEntry(entry));
-      });
+    entries.forEach(function(entry) {
+      feedElement.append(makeWhatsNewLiElementForEntry(entry));
     });
   });
 });
